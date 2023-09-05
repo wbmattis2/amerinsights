@@ -113,7 +113,7 @@ def disable_demographics(region):
               Input(component_id='display-type', component_property='value')])
 def display_data(selected_metric, daterange, selected_region, selected_demo, display_type):
     if daterange[0] == daterange[1]:
-        return px.pie(title='Please select a valid date range.')
+        return px.pie(title='Please select a valid date range.'), dash_table.DataTable(), px.pie(title='Please select a valid date range.')
     demographics = ['General Population']
     base_title = selected_region + ' ' + selected_metric
     
