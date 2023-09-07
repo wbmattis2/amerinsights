@@ -47,7 +47,7 @@ app.layout = html.Div(children=[html.H1('AmerInsights',
                                 ),
                                 html.Br(),
                                 dcc.Dropdown(id='metric-dropdown',
-                                    options=['Formal Volunteering Rate','Organizational Membership Rate','Charitable Giving Rate','Informal Helping Rate','Talking with Friends and Family Rate','Talking with Neighbors Rate','Learning About Issues Rate','Discussing Issues with Friends and Family Rate','Discussing Issues with Neighbors Rate','Posting Views Online Rate','Rate of Voting in Local Elections','Contacting Public Officials Rate','Donating to a Political Cause Rate','Attending Public Meetings Rate','Taking Action with Neighbors Rate','Buycotting or Boycotting Rate'],
+                                    options=['Formal Volunteering Rate','Organizational Membership Rate','Charitable Giving Rate','Informal Helping Rate','Talking with Friends and Family Rate','Talking with Neighbors Rate','Learning About Issues Rate','Discussing Issues with Friends and Family Rate','Discussing Issues with Neighbors Rate','Posting Views Online Rate','Voting in Local Elections Rate','Contacting Public Officials Rate','Donating to a Political Cause Rate','Attending Public Meetings Rate','Taking Action with Neighbors Rate','Buycotting or Boycotting Rate'],
                                     value='Formal Volunteering Rate',
                                     placeholder="Select a Civic Engagement Metric",
                                     searchable=True
@@ -119,7 +119,11 @@ def display_data(selected_metric, daterange, selected_region, selected_demo, dis
     
     #get survey results based on user's query
     if selected_region == 'National':
-        region_values = national_whole_df.sort_values('Year')['National ' + selected_metric]
+        if selected_metric == 'Voting in Local Elections Rate':
+            selected_metric_column = 'Rate of Voting in Local Elections'
+        else:
+            selected_metric_column = selected_metric
+        region_values = national_whole_df.sort_values('Year')['National ' + selected_metric_column]
     else:
         state_filtered_df = state_whole_df[state_whole_df['State'] == selected_region]
         region_values = []
@@ -134,12 +138,13 @@ def display_data(selected_metric, daterange, selected_region, selected_demo, dis
         subgroups = demo_dict[selected_demo]
         subgroup_results = {}
         for subgroup in subgroups:
-            demographics.append(subgroup)
-            subgroup_results[subgroup] = []
-            filtered_src_df = national_demo_df[national_demo_df['Demographic Subgroup'] == selected_demo + ': ' + subgroup].reset_index()
-            for survey_year in survey_years:
-                subgroup_results[subgroup].append(filtered_src_df[selected_region + ' ' + str(survey_year) + ' ' + selected_metric][0])
-            df[subgroup] = subgroup_results[subgroup]
+            if not (selected_demo == 'Age' and subgroup == '16 to 17' and selected_metric == 'Voting in Local Elections Rate'):
+                demographics.append(subgroup)
+                subgroup_results[subgroup] = []
+                filtered_src_df = national_demo_df[national_demo_df['Demographic Subgroup'] == selected_demo + ': ' + subgroup].reset_index()
+                for survey_year in survey_years:
+                    subgroup_results[subgroup].append(filtered_src_df[selected_region + ' ' + str(survey_year) + ' ' + selected_metric][0])
+                df[subgroup] = subgroup_results[subgroup]
         base_title += ' by ' + selected_demo
     
     #get graph of survey results
